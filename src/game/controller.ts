@@ -160,7 +160,8 @@ export class GameController {
     this.now = nowSec;
     this.watchFrameTime(dt);
     const hud = useHud.getState();
-    if (!hud.paused && this.game.status === 'playing') this.game.tick(dt);
+    // physics keeps settling after a win (rules are frozen inside Game); a full jar stops
+    if (!hud.paused && this.game.status !== 'lost') this.game.tick(dt);
     for (const e of this.game.drainEvents()) this.handle(e);
     this.landFlyers();
     this.pruneFx();
@@ -262,13 +263,16 @@ export class GameController {
     const fx = this.fx;
     const s = this.layout.s;
     switch (e.type) {
-      case 'drop':
+      case 'drop': {
         fx.dropAt = now;
+        const at = this.px(e.x, e.y);
+        this.meet(e.tier, at.x, at.y);
         play('drop');
         haptic('light');
         useHud.setState({ hand: this.game.hand, next: this.game.next });
         this.save();
         break;
+      }
       case 'handReady':
         fx.handReadyAt = now;
         useHud.setState({ hand: this.game.hand, next: this.game.next });

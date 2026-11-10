@@ -22,11 +22,11 @@
     "zustand": "^5.1.0"
   },
   "devDependencies": {
+    "@types/jest": "30.0.0",
     "@types/react": "~19.3.0",
-    "typescript": "~6.0.3",
     "jest": "~30.5.2",
     "jest-expo": "~58.0.14",
-    "@types/jest": "30.0.0"
+    "typescript": "~6.0.3"
   },
   "scripts": {
     "start": "expo start",
@@ -34,7 +34,10 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "test": "jest",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "postinstall": "setup-skia-web public",
+    "build:web": "expo export --platform web --output-dir dist",
+    "assets": "uv run --no-project --with pillow --with numpy python scripts/assets/build_assets.py && uv run --no-project --with numpy python scripts/assets/build_sounds.py"
   },
   "private": true,
   "jest": {

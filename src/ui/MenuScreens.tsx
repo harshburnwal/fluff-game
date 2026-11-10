@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { Image, ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
+import { Image, Platform, ScrollView, StyleSheet, Switch, Text, useWindowDimensions, View } from 'react-native';
 import Animated, { css, FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
@@ -64,16 +64,13 @@ export function MapScreen() {
     const id = setTimeout(() => scroll.current?.scrollTo({ y: Math.max(0, cur.y - 420), animated: false }), 0);
     return () => clearTimeout(id);
   }, [cur.y]);
-  const bgTiles = Math.ceil(contentH / (colW * 1.5));
   const levels = useMemo(() => Array.from({ length: shown }, (_, k) => k + 1), [shown]);
 
   return (
     <View style={styles.root}>
+      <Image source={IMG.bgMap} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,6,32,0.5)' }]} />
       <ScrollView ref={scroll} contentContainerStyle={{ height: contentH, width: colW, alignSelf: 'center' }} showsVerticalScrollIndicator={false}>
-        {Array.from({ length: bgTiles }, (_, i) => (
-          <Image key={i} source={IMG.bgMap} style={{ position: 'absolute', left: 0, top: i * colW * 1.5, width: colW, height: colW * 1.5, transform: i % 2 ? [{ scaleY: -1 }] : [] }} resizeMode="cover" />
-        ))}
-        <View style={[StyleSheet.absoluteFill, { backgroundColor: 'rgba(10,6,32,0.25)' }]} />
         {levels.slice(0, -1).map((i) => {
           const a = pos(i);
           const b = pos(i + 1);
@@ -247,7 +244,7 @@ export function AlbumScreen() {
           const seen = album[g.tier];
           return (
             <PressableScale key={g.tier} label={seen ? `${g.name}, ${g.value}` : 'Not met yet'} disabled={!seen} onPress={() => setOpen(g.tier)} style={[styles.albumCell, { width: cell, height: cell * 1.3 }]}>
-              <Image source={GHOST_SPRITES[g.tier - 1]} style={{ width: cell * 0.85, height: cell * 0.85, tintColor: seen ? undefined : '#1c1240', opacity: seen ? 1 : 0.85 }} resizeMode="contain" />
+              <Image source={GHOST_SPRITES[g.tier - 1]} style={{ width: cell * 0.85, height: cell * 0.85, tintColor: seen ? undefined : '#4a3a96', opacity: seen ? 1 : 0.55 }} resizeMode="contain" />
               <Text style={styles.albumName} numberOfLines={1}>
                 {seen ? g.name : '?'}
               </Text>
@@ -274,11 +271,23 @@ export function AlbumScreen() {
   );
 }
 
+/** react-native-web paints the active thumb with its own colour unless told otherwise. */
+const WEB_THUMB = Platform.OS === 'web' ? ({ activeThumbColor: '#ffffff' } as object) : {};
+
+const REASONS: Record<string, string> = { tier: 'New ghost bonus', chain: 'Cuddle Chain', bigHug: 'Big Hug', endless: 'Endless Jar', daily: 'Daily Jar', morning: 'Morning Gift', revive: 'Fluff Save', eternal: 'Eternal Pop' };
+
+function reasonText(why: string): string {
+  const [kind, arg] = why.split(':');
+  if (kind === 'level') return `Level ${arg}`;
+  if (kind === 'album') return `Album: ${GHOSTS[Number(arg) - 1]?.name ?? arg}`;
+  return REASONS[kind] ?? kind;
+}
+
 function Row({ label, value, onChange }: { label: string; value: boolean; onChange: (v: boolean) => void }) {
   return (
     <View style={styles.row}>
       <Text style={styles.rowText}>{label}</Text>
-      <Switch value={value} onValueChange={onChange} trackColor={{ true: COLORS.hotPink, false: '#3a2d7a' }} thumbColor="#ffffff" accessibilityLabel={label} />
+      <Switch value={value} onValueChange={onChange} trackColor={{ true: COLORS.hotPink, false: '#3a2d7a' }} thumbColor="#ffffff" {...WEB_THUMB} accessibilityLabel={label} />
     </View>
   );
 }
@@ -296,7 +305,7 @@ export function SettingsScreen() {
       <ScrollView contentContainerStyle={{ width: '100%', maxWidth: 520, alignSelf: 'center', padding: 16, gap: 12, paddingBottom: insets.bottom + 24 }}>
         <Panel style={{ gap: 4 }}>
           <Row label="Sound effects" value={settings.sound} onChange={(v) => setSetting('sound', v)} />
-          <Row label="Haptics" value={settings.haptics} onChange={(v) => setSetting('haptics', v)} />
+          {Platform.OS !== 'web' ? <Row label="Haptics" value={settings.haptics} onChange={(v) => setSetting('haptics', v)} /> : null}
           <Row label="Reduce motion" value={settings.reduceMotion} onChange={(v) => setSetting('reduceMotion', v)} />
           <Row label="Guide line and landing ghost" value={settings.guide} onChange={(v) => setSetting('guide', v)} />
           <Row label="Group Hug sum bubble" value={settings.sumBubble} onChange={(v) => setSetting('sumBubble', v)} />
@@ -311,7 +320,7 @@ export function SettingsScreen() {
           <Text style={styles.title}>Wallet</Text>
           {ledger.slice(-6).reverse().map((e, i) => (
             <Text key={i} style={styles.sub}>
-              {new Date(e.at).toLocaleDateString()} {e.why}: {e.coins ? `${e.coins > 0 ? '+' : ''}${e.coins} coins ` : ''}
+              {reasonText(e.why)}: {e.coins ? `${e.coins > 0 ? '+' : ''}${e.coins} coins ` : ''}
               {e.gems ? `${e.gems > 0 ? '+' : ''}${e.gems} gems` : ''}
             </Text>
           ))}

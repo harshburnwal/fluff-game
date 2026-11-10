@@ -1,6 +1,6 @@
 import { Canvas, Picture, Skia, type SkPicture } from '@shopify/react-native-skia';
 import { useEffect, useMemo, useRef } from 'react';
-import { AppState, Image, StyleSheet, useWindowDimensions, View, type GestureResponderEvent } from 'react-native';
+import { AppState, Image, Platform, StyleSheet, useWindowDimensions, View, type GestureResponderEvent } from 'react-native';
 import { useReducedMotion, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -22,6 +22,12 @@ const TAP_MS = 250;
 const TAP_MOVE = 10;
 
 type Gesture = { kind: 'aim' } | { kind: 'tap'; t0: number; x: number; y: number } | { kind: 'none' };
+
+/** Web-only test hook (`?e2e` in the URL) so automated checks can read the live game state. */
+function exposeForWebTests(ctrl: GameController): void {
+  if (Platform.OS !== 'web' || typeof location === 'undefined' || !location.search.includes('e2e')) return;
+  (globalThis as { __gf?: GameController }).__gf = ctrl;
+}
 
 function emptyPicture(): SkPicture {
   const rec = Skia.PictureRecorder();
@@ -45,6 +51,7 @@ export function GameScreen({ spec }: { spec: RunSpec }) {
   if (!ctrlRef.current) ctrlRef.current = new GameController(spec, layout);
   const ctrl = ctrlRef.current;
   ctrl.layout = layout;
+  exposeForWebTests(ctrl);
 
   const picture = useSharedValue<SkPicture>(useMemo(emptyPicture, []));
   const systemReduced = useReducedMotion();
