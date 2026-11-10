@@ -3,8 +3,8 @@ import { Image, StyleSheet, Text, View } from 'react-native';
 import Animated, { css, FadeIn, FadeOut, SlideInDown } from 'react-native-reanimated';
 import { useShallow } from 'zustand/react/shallow';
 
-import { playLevel } from '../app/flow';
-import { useNav } from '../app/nav';
+import { playLevel } from '../navigation/flow';
+import { useNav } from '../navigation/nav';
 import { CARDS } from '../content/cards';
 import { goalText, levelFor } from '../content/levels';
 import { RULES } from '../config/tuning';

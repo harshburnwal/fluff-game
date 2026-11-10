@@ -4,7 +4,7 @@ import { AppState, Image, StyleSheet, useWindowDimensions, View, type GestureRes
 import { useReducedMotion, useSharedValue } from 'react-native-reanimated';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { playDaily, playEndless, playLevel } from '../app/flow';
+import { playDaily, playEndless, playLevel } from '../navigation/flow';
 import { GameController, useHud, type RunSpec } from '../game/controller';
 import { IMG, useSceneImages } from '../render/assets';
 import { recordScene, type SceneFonts } from '../render/drawScene';

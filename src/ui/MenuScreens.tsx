@@ -4,8 +4,8 @@ import Animated, { css, FadeIn, FadeOut, SlideInDown } from 'react-native-reanim
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useShallow } from 'zustand/react/shallow';
 
-import { playDaily, playEndless, playLevel } from '../app/flow';
-import { useNav } from '../app/nav';
+import { playDaily, playEndless, playLevel } from '../navigation/flow';
+import { useNav } from '../navigation/nav';
 import { CARD_ORDER, CARDS, type CardId } from '../content/cards';
 import { GHOSTS } from '../content/ghosts';
 import { goalText, levelFor, regionName } from '../content/levels';

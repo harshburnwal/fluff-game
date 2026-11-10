@@ -5,8 +5,8 @@ import { ActivityIndicator, Image, StyleSheet, View } from 'react-native';
 import Animated, { FadeIn } from 'react-native-reanimated';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { routeAtLaunch } from './app/flow';
-import { useNav } from './app/nav';
+import { routeAtLaunch } from './navigation/flow';
+import { useNav } from './navigation/nav';
 import { IMG, loadSceneImages } from './render/assets';
 import { useProfile } from './store/profile';
 import { GameScreen } from './ui/GameScreen';
