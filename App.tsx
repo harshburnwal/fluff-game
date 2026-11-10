@@ -1,20 +1,39 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 
-export default function App() {
+/**
+ * Entry. On native, Skia is ready at once. On the web, React Native Skia needs CanvasKit
+ * (WebAssembly) loaded before any Skia module runs, so the game is imported lazily
+ * after CanvasKit resolves.
+ */
+function Loading() {
   return (
-    <View style={styles.container}>
-      <Text>Open up App.tsx to start working on your app!</Text>
-      <StatusBar style="auto" />
+    <View style={styles.loading}>
+      <ActivityIndicator color="#ff9ed8" size="large" />
     </View>
   );
 }
 
+let Root: () => React.JSX.Element;
+
+if (Platform.OS === 'web') {
+  const { WithSkiaWeb } = require('@shopify/react-native-skia/lib/module/web');
+  Root = function WebRoot() {
+    return (
+      <WithSkiaWeb
+        getComponent={() => import('./src/AppRoot')}
+        fallback={<Loading />}
+        opts={{ locateFile: (file: string) => `/${file}` }}
+      />
+    );
+  };
+} else {
+  Root = require('./src/AppRoot').default;
+}
+
+export default function App() {
+  return <Root />;
+}
+
 const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  loading: { flex: 1, alignItems: 'center', justifyContent: 'center', backgroundColor: '#0a0620' },
 });

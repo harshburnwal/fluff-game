@@ -1,30 +1,47 @@
 {
   "expo": {
-    "name": "version-0.1",
-    "slug": "version-0.1",
-    "version": "1.0.0",
+    "name": "Ghostly Fluffs",
+    "slug": "ghostly-fluffs",
+    "version": "0.1.0",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
-    "userInterfaceStyle": "light",
+    "userInterfaceStyle": "dark",
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.ghostlyfluffs.game",
+      "infoPlist": {
+        "CADisableMinimumFrameDurationOnPhone": true
+      }
     },
     "android": {
       "adaptiveIcon": {
-        "backgroundColor": "#E6F4FE",
+        "backgroundColor": "#120a2e",
         "foregroundImage": "./assets/android-icon-foreground.png",
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "predictiveBackGestureEnabled": false
+      "predictiveBackGestureEnabled": false,
+      "package": "com.ghostlyfluffs.game"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./assets/favicon.png",
+      "bundler": "metro",
+      "output": "single",
+      "name": "Ghostly Fluffs",
+      "shortName": "Ghostly Fluffs",
+      "backgroundColor": "#0a0620",
+      "themeColor": "#0a0620"
     },
     "plugins": [
       "expo-audio",
       "expo-font",
       "expo-asset"
-    ]
+    ],
+    "backgroundColor": "#0a0620",
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0a0620"
+    }
   }
 }
