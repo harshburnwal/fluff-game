@@ -22,7 +22,7 @@ if (Platform.OS === 'web') {
       <WithSkiaWeb
         getComponent={() => import('./src/AppRoot')}
         fallback={<Loading />}
-        opts={{ locateFile: (file: string) => `/${file}` }}
+        opts={{ locateFile: (file: string) => new URL(file, document.baseURI).href }}
       />
     );
   };

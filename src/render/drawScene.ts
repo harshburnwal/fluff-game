@@ -117,13 +117,13 @@ export function recordScene(input: SceneInput): SkPicture {
   const p = getPaints();
   const rec = Skia.PictureRecorder();
   const c = rec.beginRecording(Skia.XYWHRect(0, 0, L.width, L.height));
+  // the jar art itself is two static native images (behind and in front of this canvas),
+  // so the GPU composites it instead of the canvas redrawing a full-screen image each frame
   drawAmbient(c, p, input);
-  drawJar(c, p, input, 1);
+  drawJarGlow(c, p, input);
   drawDangerLine(c, p, input);
   drawBodies(c, p, input);
   drawHugLinks(c, p, input);
-  // the glass front: a faint second pass of the jar over the ghosts reads as reflections
-  drawJar(c, p, input, 0.2);
   drawHugTag(c, p, input);
   drawAimAndHand(c, p, input);
   drawEffects(c, p, input);
@@ -131,7 +131,7 @@ export function recordScene(input: SceneInput): SkPicture {
 }
 
 function drawAmbient(c: SkCanvas, p: Paints, { layout: L, img, now, reduced, fx }: SceneInput): void {
-  const n = fx.lighter ? 4 : 8;
+  const n = fx.lighter ? 3 : 6;
   for (let i = 0; i < n; i++) {
     const bx = L.colX + hash01(3, i) * L.colW;
     const by = L.sceneTop + hash01(5, i) * (L.sceneBottom - L.sceneTop);
@@ -142,7 +142,7 @@ function drawAmbient(c: SkCanvas, p: Paints, { layout: L, img, now, reduced, fx 
     const a = 0.18 + 0.14 * Math.sin(t * 0.9 + i);
     sprite(c, p.img, img.lightOrb, x, y, size, size, a);
   }
-  for (let i = 0; i < (fx.lighter ? 0 : 6); i++) {
+  for (let i = 0; i < (fx.lighter ? 0 : 5); i++) {
     const x = L.colX + hash01(11, i) * L.colW;
     const y = L.sceneTop + hash01(13, i) * (L.sceneBottom - L.sceneTop) * 0.7;
     const tw = reduced ? 0.5 : 0.5 + 0.5 * Math.sin(now * 2.2 + i * 1.3);
@@ -155,22 +155,14 @@ function jarRect(L: Layout): { x: number; y: number; w: number; h: number } {
   return { x: L.ox + JAR_IMAGE.left * L.s, y: L.oy + JAR_IMAGE.top * L.s, w: JAR_IMAGE.width * L.s, h: JAR_IMAGE.height * L.s };
 }
 
-function drawJar(c: SkCanvas, p: Paints, { layout: L, img, now, fx, reduced }: SceneInput, alpha: number): void {
+function drawJarGlow(c: SkCanvas, p: Paints, { layout: L, img, now, fx }: SceneInput): void {
   const r = jarRect(L);
-  const cx = r.x + r.w / 2;
-  const cy = r.y + r.h / 2;
-  let rot = 0;
-  const st = now - fx.shakeAt;
-  if (st >= 0 && st < 0.5 && !reduced) rot = 3 * Math.sin((st / 0.5) * Math.PI * 4) * (1 - st / 0.5);
-  if (alpha === 1) {
-    for (const f of fx.list) {
-      if (f.k !== 'jarGlow') continue;
-      const t = clamp01((now - f.t0) / f.dur);
-      const a = f.strength * Math.sin(t * Math.PI);
-      sprite(c, p.img, img.glowRing, cx, cy + r.h * 0.08, r.w * 1.5, r.w * 1.5, a);
-    }
+  for (const f of fx.list) {
+    if (f.k !== 'jarGlow') continue;
+    const t = clamp01((now - f.t0) / f.dur);
+    const a = f.strength * Math.sin(t * Math.PI);
+    sprite(c, p.img, img.glowRing, r.x + r.w / 2, r.y + r.h * 0.58, r.w * 1.5, r.w * 1.5, a);
   }
-  sprite(c, p.img, img.jar, cx, cy, r.w, r.h, alpha, rot);
 }
 
 function drawDangerLine(c: SkCanvas, p: Paints, { game, layout: L, now, fx, reduced }: SceneInput): void {

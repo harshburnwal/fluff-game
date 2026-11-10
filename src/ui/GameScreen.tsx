@@ -13,6 +13,7 @@ import { initSound } from '../services/feedback';
 import { clearRun } from '../store/runSave';
 import { useProfile } from '../store/profile';
 import { BannerView, CardRow, ScoreAndNext, TipView, TopBar } from './Hud';
+import { JarLayer } from './JarLayer';
 import { LastChanceOverlay, LevelCompleteOverlay, PauseOverlay, RunOverOverlay } from './Overlays';
 import { COLORS } from './theme';
 
@@ -157,9 +158,11 @@ export function GameScreen({ spec }: { spec: RunSpec }) {
     <View style={styles.root}>
       <Image source={IMG.bgGame} style={StyleSheet.absoluteFill} resizeMode="cover" />
       <View style={styles.veil} pointerEvents="none" />
+      <JarLayer layout={layout} reduced={live.current.reduced} />
       <Canvas style={StyleSheet.absoluteFill} pointerEvents="none">
         <Picture picture={picture} />
       </Canvas>
+      <JarLayer layout={layout} reduced={live.current.reduced} front />
       <View
         style={StyleSheet.absoluteFill}
         onStartShouldSetResponder={() => true}

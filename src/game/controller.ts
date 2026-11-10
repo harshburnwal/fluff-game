@@ -61,6 +61,8 @@ export interface HudState {
   tip: string | null;
   result: RunResult | null;
   reviveUsed: boolean;
+  /** Bumps when Gentle Shake fires; the jar images replay their rock animation. */
+  shakeKey: number;
 }
 
 export const useHud = create<HudState>()(() => ({
@@ -84,6 +86,7 @@ export const useHud = create<HudState>()(() => ({
   tip: null,
   result: null,
   reviveUsed: false,
+  shakeKey: 0,
 }));
 
 export interface RunSpec {
@@ -439,6 +442,7 @@ export class GameController {
     switch (card) {
       case 'shake':
         fx.shakeAt = now;
+        useHud.setState({ shakeKey: useHud.getState().shakeKey + 1 });
         break;
       case 'swap':
         fx.handReadyAt = now;
